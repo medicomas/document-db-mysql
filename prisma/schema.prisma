@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id      String   @id @default(uuid())
+  rol     String
+  Medicos Medicos?
+}
+
+model Medicos {
+  user            Users       @relation(fields: [id_User], references: [id])
+  id_User         String      @unique
+  //id Users        String @id @default(uuid())
+  nombre          String
+  apellidoPaterno String
+  apellidoMaterno String
+  tipoDocumento   String
+  Documento       BigInt      @unique
+  Sexo            String      @db.Char(1)
+  Citas           Citas[]
+  Historias       Historias[]
+}
+
+model Pacientes {
+  id              String      @id @default(uuid())
+  nombre          String
+  apellidoPaterno String
+  apellidoMaterno String
+  tipoDocumento   String
+  Documento       BigInt      @unique
+  Sexo            String      @db.Char(1)
+  Citas           Citas[]
+  Historias       Historias[]
+}
+
+model Citas {
+  id           Int            @id @unique @default(autoincrement())
+  medico       Medicos        @relation(fields: [id_medico], references: [id_User])
+  paciente     Pacientes      @relation(fields: [id_paciente], references: [id])
+  id_medico    String
+  id_paciente  String
+  Realizada    Boolean        @default(false)
+  hora         DateTime       @updatedAt
+  Diagnosticos Diagnosticos[]
+}
+
+model Antecedentes {
+  id           String         @id @unique
+  descripcion  String //llenar con la api
+  Diagnosticos Diagnosticos[]
+}
+
+model Diagnosticos {
+  id             Int          @id
+  cita           Citas        @relation(fields: [id_cita], references: [id])
+  antecedente    Antecedentes @relation(fields: [id_antecedente], references: [id])
+  id_cita        Int
+  id_antecedente String
+  Historias      Historias[]
+}
+
+model Medicamentos {
+  id               String         @id @unique
+  nombre           String         @unique
+  fechaVencimiento DateTime
+  Tratamientos     Tratamientos[]
+}
+
+model Tratamientos {
+  id             Int          @id @default(autoincrement())
+  medicamento    Medicamentos @relation(fields: [id_medicamento], references: [id])
+  id_medicamento String
+  Frecuencia     String
+  Historias      Historias[]
+}
+
+model Historias {
+  id             Int          @id @unique @default(autoincrement())
+  paciente       Pacientes    @relation(fields: [id_paciente], references: [id])
+  medico         Medicos      @relation(fields: [id_medico], references: [id_User])
+  tratamiento    Tratamientos @relation(fields: [id_tratamiento], references: [id])
+  diagnostico    Diagnosticos @relation(fields: [id_diagnostico], references: [id])
+  id_paciente    String
+  id_medico      String
+  id_tratamiento Int
+  id_diagnostico Int
+  fecha          DateTime     @updatedAt
+}
