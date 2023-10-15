@@ -11,9 +11,24 @@ datasource db {
 }
 
 model Users {
-  id      String   @id @default(uuid())
-  rol     String
+  id      String   @default(autoincrement())
+  roles RolesOnUser[]
   Medicos Medicos?
+}
+
+model RolesOnUser {
+  userId     Int
+  roleId Int
+  
+  user   Users     @relation(fields: [userId], references: [id])
+  role   UserRole  @relation(fields: [roleId], references: [id])
+
+  @@id([userId, roleId])
+}
+
+model UserRole {
+  id   Int    @id @default(autoincrement())
+  name String
 }
 
 model Medicos {
